@@ -19,33 +19,33 @@ Install-Module -Name BrowserManager
 
 - **Get the Default Browser**
 
-```Powershell
-$BrowserInfo = Get-DefaultBrowser
-```
+    ```Powershell
+    $BrowserInfo = Get-DefaultBrowser
+    ```
 
 - **Set a Browser as Default**
 
-```PowerShell
-Set-DefaultBrowser -Name "Chrome"
-```
+    ```PowerShell
+    Set-DefaultBrowser -Name "Chrome"
+    ```
 
-or
+    or
 
-```PowerShell
-(Get-InstalledBrowsers).Where({ $_ -Name -eq "Google Chrome" }).SetAsDefault()
-```
+    ```PowerShell
+    (Get-InstalledBrowsers).Where({ $_ -Name -eq "Google Chrome" }).SetAsDefault()
+    ```
 
 - **Uninstall a Browser**
 
-```PowerShell
-Uninstall-Browser -BrowserName "Firefox"
-```
+    ```PowerShell
+    Uninstall-Browser -BrowserName "Firefox"
+    ```
 
 - **Set File Extensions for a Browser**
 
-```PowerShell
-Set-BrowserFileExtensions -BrowserName "Edge" -FileExtensions ".html", ".htm"
-```
+    ```PowerShell
+    Set-BrowserFileExtensions -BrowserName "Edge" -FileExtensions ".html", ".htm"
+    ```
 
 ## Contributing
 

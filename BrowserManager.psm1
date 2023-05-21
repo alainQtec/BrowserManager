@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
+
 #region    Classes
+
 class Vendor {
     [string] $Name
     [string] $Website
@@ -12,12 +14,17 @@ class Vendor {
 
 class BrowserInfo {
     [string] $Name
-    [version] $Version
-    [Vendor] $Vendor
-    [IO.DirectoryInfo] $InstallationPath
-    [bool] $IsDefault
+    [uri] $Uri
+    hidden [IO.DirectoryInfo] $InstallationPath
+    hidden [version] $Version
+    hidden [bool] $IsDefault
+    hidden [Vendor] $Vendor
 
     BrowserInfo() {}
+    BrowserInfo([string]$Name, [uri]$Uri) {
+        $this.Name = $name
+        $this.Uri = $Uri
+    }
     BrowserInfo([string]$name, [version]$version, [Vendor]$vendor, [IO.DirectoryInfo]$installationPath) {
         $this.Name = $name
         $this.Version = $version
@@ -34,6 +41,7 @@ class BrowserManager {
     static [bool] $IsInstallerRunning
     static [BrowserInfo[]] $InstalledBrowsers
     hidden [BrowserInfo] $_currentBrowser
+    static hidden [System.Collections.Generic.List[BrowserInfo]] $_BrowserList
 
     BrowserManager() {}
 
@@ -58,6 +66,22 @@ class BrowserManager {
         $browserObjectS = $null
         # Get installed browsers implementation ..
         return $browserObjectS
+    }
+    static [System.Collections.Generic.List[BrowserInfo]] GetBrowserList() {
+        $BrowserList = [BrowserManager]::_BrowserList
+        if ($null -eq $BrowserList) {
+            Write-Debug "Fetching ..." -Debug
+            $BrowserList = [System.Collections.Generic.List[BrowserInfo]]::new()
+            $(((Invoke-WebRequest -Verbose:$false -Uri 'https://www.webdevelopersnotes.com/browsers-list').Links | Where-Object { $_.rel -eq "noopener noreferrer" -and !$_.title.EndsWith("web site") }).Where({ ![string]::IsNullOrWhiteSpace($_.href) }).ForEach({
+                        [BrowserInfo]::new($($_.title -replace " download link$", ''), $($_.href -replace "^https?://", '//' -replace "^//?", 'https://'))
+                    }
+                ) | Sort-Object -Unique uri
+            ).ForEach({ [void]$BrowserList.Add($_) })
+            [BrowserManager]::_BrowserList = $BrowserList
+        } else {
+            Write-Debug "Using already existing list" -Debug
+        }
+        return $BrowserList
     }
     static [void] SetDefaultBrowser([string]$browserName) {}
     static [void] SetDefaultFileExtensions([string]$browserName, [string[]]$fileExtensions) {}
@@ -142,6 +166,7 @@ class EdgeUninstaller {
 }
 
 #endregion Classes
+
 $Private = Get-ChildItem ([IO.Path]::Combine($PSScriptRoot, 'Private')) -Filter "*.ps1" -ErrorAction SilentlyContinue
 $Public = Get-ChildItem ([IO.Path]::Combine($PSScriptRoot, 'Public')) -Filter "*.ps1" -ErrorAction SilentlyContinue
 # Load dependencies

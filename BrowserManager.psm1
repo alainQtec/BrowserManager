@@ -14,8 +14,8 @@ class Vendor {
 
 class BrowserInfo {
     [string] $Name
-    [uri] $Uri
-    hidden [IO.DirectoryInfo] $InstallationPath
+    [uri] $Uri # should be its download Page.
+    hidden [IO.DirectoryInfo] $InstallationPath # for an installed or portable browser.
     hidden [version] $Version
     hidden [bool] $IsDefault
     hidden [Vendor] $Vendor
@@ -25,11 +25,10 @@ class BrowserInfo {
         $this.Name = $name
         $this.Uri = $Uri
     }
-    BrowserInfo([string]$name, [version]$version, [Vendor]$vendor, [IO.DirectoryInfo]$installationPath) {
+    BrowserInfo([string]$name, [version]$version, [Vendor]$vendor) {
         $this.Name = $name
         $this.Version = $version
         $this.Vendor = $vendor
-        $this.InstallationPath = $installationPath
     }
     [void] SetAsDefault() {}
 }
